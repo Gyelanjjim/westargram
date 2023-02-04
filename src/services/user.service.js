@@ -43,4 +43,19 @@ const signIn = async (email, password) => {
   return jwt.sign({ sub: user.id }, process.env.JWT_SECRET);
 };
 
-module.exports = { signUp, signIn };
+const getUserByUserId = async (userId, myId) => {
+  const data = await userDao.getUserByUserId(userId);
+  delete data.password;
+  delete data.updated_at;
+
+  if (+userId === myId) {
+    data['isMine'] = true;
+  } else {
+    data['isMine'] = false;
+    delete data.email;
+  }
+
+  return data;
+};
+
+module.exports = { signUp, signIn, getUserByUserId };

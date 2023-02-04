@@ -29,4 +29,13 @@ const signIn = catchAsync(async (req, res, next) => {
   res.status(200).json({ accessToken: accessToken });
 });
 
-module.exports = { signUp, signIn };
+const getUserByUserId = catchAsync(async (req, res, next) => {
+  const { userId } = req.params;
+  const myId = req.user.id;
+
+  const data = await userService.getUserByUserId(userId, myId);
+
+  res.status(200).json(data);
+});
+
+module.exports = { signUp, signIn, getUserByUserId };
