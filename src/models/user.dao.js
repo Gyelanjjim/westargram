@@ -1,16 +1,17 @@
 const { appDataSource } = require('./dataSource');
 
-const signUp = async (name, email, profileImage, hashedPassword) => {
+const signUp = async (name, email, profileImage, hashedPassword, username) => {
   await appDataSource.query(
     `
     INSERT INTO users(
         name, 
         email,
         profile_image,
-        password
-    ) VALUES (?, ?, ?, ?);
+        password,
+        username
+    ) VALUES (?, ?, ?, ?, ?);
     `,
-    [name, email, profileImage, hashedPassword]
+    [name, email, profileImage, hashedPassword, username]
   );
 };
 
@@ -38,4 +39,33 @@ const getUserByEmail = async (email) => {
   return user;
 };
 
-module.exports = { signUp, getUserByUserId, getUserByEmail };
+const getUserByUsername = async (username) => {
+  const [user] = await appDataSource.query(
+    `
+      SELECT *
+        FROM users u
+        WHERE u.username = ?; 
+      `,
+    [username]
+  );
+  return user;
+};
+
+const updateUser = async (userId, setClause) => {
+  await appDataSource.query(
+    `
+    UPDATE users u
+    ${setClause}
+    WHERE u.id = ?;
+    `,
+    [userId]
+  );
+};
+
+module.exports = {
+  signUp,
+  getUserByUserId,
+  getUserByEmail,
+  getUserByUsername,
+  updateUser,
+};

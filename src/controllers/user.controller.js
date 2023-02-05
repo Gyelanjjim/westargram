@@ -2,15 +2,15 @@ const userService = require('../services/user.service');
 const { catchAsync } = require('../utils/error');
 
 const signUp = catchAsync(async (req, res, next) => {
-  const { name, email, profileImage, password } = req.body;
+  const { name, email, profileImage, password, username } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !email || !password || !username) {
     const err = new Error('KEY_ERROR');
     err.statusCode = 400;
     throw err;
   }
 
-  await userService.signUp(name, email, profileImage, password);
+  await userService.signUp(name, email, profileImage, password, username);
 
   res.status(201).json({ message: 'userCreated' });
 });
@@ -38,4 +38,19 @@ const getUserByUserId = catchAsync(async (req, res, next) => {
   res.status(200).json(data);
 });
 
-module.exports = { signUp, signIn, getUserByUserId };
+const updateUser = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const keys = req.body;
+
+  if (keys.email) {
+    const err = new Error(`Forbidden`);
+    err.statusCode = 403;
+    throw err;
+  }
+
+  await userService.updateUser(userId, keys);
+
+  res.status(200).json({ message: 'userUpdated' });
+});
+
+module.exports = { signUp, signIn, getUserByUserId, updateUser };

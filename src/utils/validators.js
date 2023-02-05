@@ -4,7 +4,7 @@ const validateEmail = (email) => {
   );
 
   if (!re.test(email)) {
-    const err = new Error('invalid email');
+    const err = new Error('EMAIL_IS_NOT_VALID');
     err.statusCode = 400;
     throw err;
   }
@@ -21,4 +21,14 @@ const validatePw = (password) => {
   }
 };
 
-module.exports = { validateEmail, validatePw };
+const validateUsername = (username) => {
+  const re = new RegExp(/^[a-z0-9_\.]{4,20}$/);
+
+  if (!re.test(username)) {
+    const err = new Error('USERNAME_IS_NOT_VALID');
+    err.statusCode = 400;
+    throw err;
+  }
+};
+
+module.exports = { validateEmail, validatePw, validateUsername };

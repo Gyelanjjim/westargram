@@ -2,11 +2,16 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const userDao = require('../models/user.dao');
-const { validateEmail, validatePw } = require('../utils/validators');
+const {
+  validateEmail,
+  validatePw,
+  validateUsername,
+} = require('../utils/validators');
 
-const signUp = async (name, email, profileImage, password) => {
+const signUp = async (name, email, profileImage, password, username) => {
   validateEmail(email);
   validatePw(password);
+  validateUsername(username);
 
   const user = await userDao.getUserByEmail(email);
 
@@ -16,9 +21,17 @@ const signUp = async (name, email, profileImage, password) => {
     throw err;
   }
 
+  const user2 = await userDao.getUserByUsername(username);
+
+  if (user2) {
+    const err = new Error(`duplicated username`);
+    err.statusCode = 400;
+    throw err;
+  }
+
   const hashedPassword = await bcrypt.hash(password, 8);
 
-  await userDao.signUp(name, email, profileImage, hashedPassword);
+  await userDao.signUp(name, email, profileImage, hashedPassword, username);
 };
 
 const signIn = async (email, password) => {
@@ -58,4 +71,34 @@ const getUserByUserId = async (userId, myId) => {
   return data;
 };
 
-module.exports = { signUp, signIn, getUserByUserId };
+const updateUser = async (userId, keys) => {
+  if (keys.username) {
+    validateUsername(keys.username);
+
+    const user = await userDao.getUserByUsername(keys.username);
+    if (user) {
+      const err = new Error(`duplicated username`);
+      err.statusCode = 400;
+      throw err;
+    }
+  }
+
+  if (keys.password) {
+    validatePw(keys.password);
+
+    const hashedPassword = await bcrypt.hash(keys.password, 8);
+    keys.password = hashedPassword;
+  }
+
+  const setClause = (keys) => {
+    const arr = [];
+    for (let [key, value] of Object.entries(keys)) {
+      arr.push('u.' + key + ' = "' + value + '"');
+    }
+    return 'SET ' + arr.join(',');
+  };
+
+  await userDao.updateUser(userId, setClause(keys));
+};
+
+module.exports = { signUp, signIn, getUserByUserId, updateUser };
