@@ -5,3 +5,4 @@ ALTER TABLE users MODIFY password VARCHAR(100);
 
 -- migrate:down
 DROP TABLE posts;
+DROP TABLE users;
