@@ -16,4 +16,17 @@ const createPost = catchAsync(async (req, res, next) => {
   res.status(201).json({ message: 'postCreated' });
 });
 
-module.exports = { createPost };
+const getPost = catchAsync(async (req, res, next) => {
+  const data = await postService.getPost();
+
+  res.status(200).json(data);
+});
+
+const getPostByUserId = catchAsync(async (req, res, next) => {
+  const myId = req.user.id;
+  const { userId } = req.params;
+  const data = await postService.getPostByUserId(myId, userId);
+  res.status(200).json(data);
+});
+
+module.exports = { createPost, getPost, getPostByUserId };
