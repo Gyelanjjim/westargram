@@ -2,7 +2,13 @@ const postService = require('../services/post.service');
 const { catchAsync } = require('../utils/error');
 
 const createPost = catchAsync(async (req, res, next) => {
-  const { title, content, image } = req.body;
+  const { title, content } = req.body;
+
+  const image = [];
+  for (let i = 0; i < req.files.length; i++) {
+    image.push(req.files[i].location);
+  }
+
   const userId = req.user.id;
 
   if (!title || !content || !image) {
