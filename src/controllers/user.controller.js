@@ -2,8 +2,8 @@ const userService = require('../services/user.service');
 const { catchAsync } = require('../utils/error');
 
 const signUp = catchAsync(async (req, res, next) => {
-  const { name, email, profileImage, password, username } = req.body;
-
+  const { name, email, password, username } = req.body;
+  const profileImage = req.file.location;
   if (!name || !email || !password || !username) {
     const err = new Error('KEY_ERROR');
     err.statusCode = 400;
@@ -41,6 +41,7 @@ const getUserByUserId = catchAsync(async (req, res, next) => {
 const updateUser = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
   const keys = req.body;
+  keys['profile_image'] = req.file.location;
 
   if (keys.email) {
     const err = new Error(`Forbidden`);
